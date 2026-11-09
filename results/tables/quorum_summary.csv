@@ -1,0 +1,9 @@
+scenario,num_nodes,quorum_r,quorum_w,network_delay_ms,failed_nodes,write_mean_ms,write_p50_ms,write_p95_ms,write_p99_ms,read_mean_ms,read_p50_ms,read_p95_ms,read_p99_ms,write_success_rate,read_success_rate,read_repairs_triggered,consistency_passed
+"Normal - Quórum Simétrico (R=3, W=3)",5,3,3,0.0,0,22.511,23.191,27.119,27.4,10.705,11.456,13.748,14.544,1.0,1.0,0,True
+"Normal - Otimizado p/ Leitura (R=2, W=4)",5,2,4,0.0,0,24.064,24.099,28.915,30.739,9.325,9.852,13.153,14.9,1.0,1.0,0,True
+"Normal - ROWAA Leitura Rápida (R=1, W=5)",5,1,5,0.0,0,26.884,27.534,31.911,34.013,0.046,0.045,0.069,0.077,1.0,1.0,0,True
+"Atraso 5 ms (R=3, W=3)",5,3,3,5.0,0,29.722,29.505,33.243,35.274,14.545,13.963,17.683,18.917,1.0,1.0,0,True
+"Atraso 15 ms (R=3, W=3)",5,3,3,15.0,0,71.668,71.106,76.69,88.518,35.649,35.679,39.803,40.759,1.0,1.0,0,True
+"Atraso 30 ms (R=3, W=3)",5,3,3,30.0,0,133.741,133.389,144.833,147.904,67.154,67.152,72.334,73.815,1.0,1.0,0,True
+"Falha Crash-Stop f=1 + Read-Repair (R=3, W=3)",5,3,3,0.0,1,6.083,5.723,11.653,14.097,3.641,3.643,6.422,7.494,1.0,1.0,26,True
+"Falha Crash-Stop f=2 + Read-Repair (R=3, W=3)",5,3,3,0.0,2,7.039,6.776,10.09,12.601,3.837,3.521,6.746,7.493,1.0,1.0,10,True

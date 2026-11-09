@@ -1,0 +1,36 @@
+# Ambiente virtual e cache do Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# Ferramentas de teste e lint
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Arquivos locais de planejamento e enunciado (não versionar)
+AGENTS.md
+agents.md
+PROJETO.md
+projeto.md
+PROJECT.md
+project.md
+Trabalho2-MC714_2s2026.pdf
+
+# Artefatos auxiliares do LaTeX (mantendo apenas main.tex e main.pdf versionados)
+relatorio/*.aux
+relatorio/*.fdb_latexmk
+relatorio/*.fls
+relatorio/*.log
+relatorio/*.out
+relatorio/*.synctex.gz
+relatorio/*.toc
+relatorio/*.bbl
+relatorio/*.blg

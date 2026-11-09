@@ -1,0 +1,81 @@
+x-cluster-common: &cluster-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: mc714-projeto2:latest
+  restart: unless-stopped
+  networks:
+    - mc714-net
+  environment: &common-env
+    MC714_HOST: "0.0.0.0"
+    MC714_PEERS: "1=node-1:50051,2=node-2:50052,3=node-3:50053,4=node-4:50054,5=node-5:50055"
+    MC714_QUORUM_R: "3"
+    MC714_QUORUM_W: "3"
+    MC714_HB_INTERVAL_MS: "80"
+    MC714_HB_TIMEOUT_MS: "280"
+    MC714_RPC_TIMEOUT_MS: "400"
+
+services:
+  node-1:
+    <<: *cluster-common
+    container_name: mc714-node-1
+    hostname: node-1
+    ports:
+      - "50051:50051"
+    environment:
+      <<: *common-env
+      MC714_NODE_ID: "1"
+      MC714_PORT: "50051"
+      MC714_FAULT_SEED: "101"
+
+  node-2:
+    <<: *cluster-common
+    container_name: mc714-node-2
+    hostname: node-2
+    ports:
+      - "50052:50052"
+    environment:
+      <<: *common-env
+      MC714_NODE_ID: "2"
+      MC714_PORT: "50052"
+      MC714_FAULT_SEED: "102"
+
+  node-3:
+    <<: *cluster-common
+    container_name: mc714-node-3
+    hostname: node-3
+    ports:
+      - "50053:50053"
+    environment:
+      <<: *common-env
+      MC714_NODE_ID: "3"
+      MC714_PORT: "50053"
+      MC714_FAULT_SEED: "103"
+
+  node-4:
+    <<: *cluster-common
+    container_name: mc714-node-4
+    hostname: node-4
+    ports:
+      - "50054:50054"
+    environment:
+      <<: *common-env
+      MC714_NODE_ID: "4"
+      MC714_PORT: "50054"
+      MC714_FAULT_SEED: "104"
+
+  node-5:
+    <<: *cluster-common
+    container_name: mc714-node-5
+    hostname: node-5
+    ports:
+      - "50055:50055"
+    environment:
+      <<: *common-env
+      MC714_NODE_ID: "5"
+      MC714_PORT: "50055"
+      MC714_FAULT_SEED: "105"
+
+networks:
+  mc714-net:
+    driver: bridge

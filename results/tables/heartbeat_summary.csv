@@ -1,0 +1,7 @@
+scenario,num_nodes,hb_interval_ms,hb_timeout_ms,drop_probability,detect_mean_ms,detect_std_ms,detect_p50_ms,detect_p95_ms,detect_p99_ms,false_positive_rate,measured_msg_per_sec,theoretical_msg_per_sec
+Timeout 120 ms (Sem Perda),5,45.0,120.0,0.0,135.47,11.82,133.17,149.02,149.74,0.0,427.2,444.4
+Timeout 220 ms (Sem Perda),5,45.0,220.0,0.0,230.99,8.29,233.64,236.7,236.9,0.0,403.2,444.4
+Timeout 340 ms (Sem Perda),5,45.0,340.0,0.0,368.74,28.25,373.17,396.24,397.94,0.0,398.3,444.4
+Perda de Pacotes 10% (Timeout 180 ms),5,45.0,180.0,0.1,167.1,53.14,185.64,202.03,203.63,0.01,393.9,444.4
+Perda de Pacotes 25% (Timeout 180 ms),5,45.0,180.0,0.25,121.06,66.1,126.83,185.68,186.38,0.09,348.7,444.4
+Perda de Pacotes 40% (Timeout 180 ms),5,45.0,180.0,0.4,126.34,72.27,149.48,177.4,178.69,0.34,299.2,444.4

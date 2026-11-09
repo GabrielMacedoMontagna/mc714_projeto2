@@ -1,0 +1,224 @@
+syntax = "proto3";
+
+package mc714.cluster;
+
+service ClusterNodeService {
+  // 1. Detector de Falhas (Heartbeat)
+  rpc SendHeartbeat (HeartbeatMsg) returns (HeartbeatAck);
+
+  // 2. Exclusao Mutua Distribuida (Ricart-Agrawala + Relogio de Lamport)
+  rpc RequestAccess (MutexRequestMsg) returns (MutexRequestAck);
+  rpc DeliverDeferredReply (MutexReplyMsg) returns (MutexAck);
+
+  // 3. Replicacao Baseada em Quorum (Gifford + Read-Repair)
+  rpc ReplicaRead (ReplicaReadMsg) returns (ReplicaReadAck);
+  rpc ReplicaWrite (ReplicaWriteMsg) returns (ReplicaWriteAck);
+
+  // 4. Operacoes de Cliente / Benchmark e Administracao de Experimentos
+  rpc ClientExecuteCriticalSection (ClientCSRequest) returns (ClientCSReply);
+  rpc ClientQuorumRead (ClientReadRequest) returns (ClientReadReply);
+  rpc ClientQuorumWrite (ClientWriteRequest) returns (ClientWriteReply);
+  rpc ConfigureFaults (FaultConfigMsg) returns (FaultConfigAck);
+  rpc GetNodeStatus (StatusRequestMsg) returns (StatusReplyMsg);
+}
+
+message HeartbeatMsg {
+  int32 sender_id = 1;
+  int64 sequence = 2;
+  int64 lamport_ts = 3;
+}
+
+message HeartbeatAck {
+  int32 responder_id = 1;
+  int64 sequence = 2;
+  int64 lamport_ts = 3;
+  bool accepted = 4;
+}
+
+message MutexRequestMsg {
+  int32 requester_id = 1;
+  int64 request_lamport_ts = 2;
+  string resource_tag = 3;
+}
+
+message MutexRequestAck {
+  int32 responder_id = 1;
+  bool granted_immediately = 2;
+  int64 responder_lamport_ts = 3;
+}
+
+message MutexReplyMsg {
+  int32 responder_id = 1;
+  int64 responder_lamport_ts = 2;
+}
+
+message MutexAck {
+  bool ok = 1;
+}
+
+message ReplicaReadMsg {
+  int32 coordinator_id = 1;
+  string key = 2;
+  int64 lamport_ts = 3;
+}
+
+message ReplicaReadAck {
+  int32 replica_id = 1;
+  string key = 2;
+  string value = 3;
+  int64 version = 4;
+  int32 writer_id = 5;
+  int64 value_lamport_ts = 6;
+  int64 responder_lamport_ts = 7;
+  bool found = 8;
+}
+
+message ReplicaWriteMsg {
+  int32 coordinator_id = 1;
+  string key = 2;
+  string value = 3;
+  int64 version = 4;
+  int32 writer_id = 5;
+  int64 value_lamport_ts = 6;
+  int64 sender_lamport_ts = 7;
+  bool is_read_repair = 8;
+}
+
+message ReplicaWriteAck {
+  int32 replica_id = 1;
+  bool applied = 2;
+  int64 current_version = 3;
+  int32 current_writer_id = 4;
+  int64 responder_lamport_ts = 5;
+}
+
+message ClientCSRequest {
+  string resource_tag = 1;
+  double hold_ms = 2;
+  double timeout_ms = 3;
+  string optional_quorum_key = 4;
+  string optional_quorum_value = 5;
+}
+
+message ClientCSReply {
+  bool acquired = 1;
+  int32 node_id = 2;
+  int64 request_lamport_ts = 3;
+  int64 enter_lamport_ts = 4;
+  int64 exit_lamport_ts = 5;
+  int64 enter_wall_ns = 6;
+  int64 exit_wall_ns = 7;
+  double wait_latency_ms = 8;
+  int32 protocol_messages_used = 9;
+  string error_message = 10;
+}
+
+message ClientReadRequest {
+  string key = 1;
+  bool enable_read_repair = 2;
+  int32 override_read_quorum = 3;
+}
+
+message ClientReadReply {
+  bool success = 1;
+  bool found = 2;
+  string key = 3;
+  string value = 4;
+  int64 version = 5;
+  int32 writer_id = 6;
+  int32 acks_received = 7;
+  int32 quorum_required = 8;
+  repeated int32 repaired_nodes = 9;
+  double latency_ms = 10;
+  int64 start_wall_ns = 11;
+  int64 end_wall_ns = 12;
+  string error_message = 13;
+}
+
+message ClientWriteRequest {
+  string key = 1;
+  string value = 2;
+  int32 override_write_quorum = 3;
+}
+
+message ClientWriteReply {
+  bool success = 1;
+  string key = 2;
+  string value = 3;
+  int64 version = 4;
+  int32 writer_id = 5;
+  int32 read_phase_acks = 6;
+  int32 write_phase_acks = 7;
+  int32 quorum_required = 8;
+  double latency_ms = 9;
+  int64 start_wall_ns = 10;
+  int64 end_wall_ns = 11;
+  string error_message = 12;
+}
+
+message FaultConfigMsg {
+  bool reset_all = 1;
+  bool set_crashed = 2;
+  bool crashed = 3;
+  bool set_partition = 4;
+  repeated int32 partitioned_peers = 5;
+  bool set_drop = 6;
+  double drop_probability = 7;
+  bool set_delay = 8;
+  double delay_ms = 9;
+  double jitter_ms = 10;
+  bool set_seed = 11;
+  int32 seed = 12;
+  bool set_hb_timeout = 13;
+  double hb_timeout_ms = 14;
+}
+
+message FaultConfigAck {
+  bool ok = 1;
+  bool crashed = 2;
+  repeated int32 partitioned_peers = 3;
+  double drop_probability = 4;
+  double delay_ms = 5;
+  double jitter_ms = 6;
+}
+
+message StatusRequestMsg {
+  bool include_history = 1;
+}
+
+message CSRecordMsg {
+  int32 node_id = 1;
+  int64 request_lamport = 2;
+  int64 enter_lamport = 3;
+  int64 exit_lamport = 4;
+  int64 enter_wall_ns = 5;
+  int64 exit_wall_ns = 6;
+  string resource_tag = 7;
+}
+
+message PeerHealthMsg {
+  int32 peer_id = 1;
+  string status = 2;
+  int64 last_sequence = 3;
+  int32 suspect_count = 4;
+}
+
+message StatusReplyMsg {
+  int32 node_id = 1;
+  int64 lamport_clock = 2;
+  string mutex_state = 3;
+  repeated int32 active_peers = 4;
+  repeated int32 suspected_peers = 5;
+  repeated PeerHealthMsg peer_health = 6;
+  int32 replica_keys_count = 7;
+  bool is_crashed = 8;
+  int64 mutex_messages_sent = 9;
+  int64 mutex_messages_received = 10;
+  int64 quorum_messages_sent = 11;
+  int64 quorum_messages_received = 12;
+  int64 heartbeat_messages_sent = 13;
+  int64 heartbeat_messages_received = 14;
+  int64 dropped_messages = 15;
+  int64 partition_blocked_messages = 16;
+  repeated CSRecordMsg cs_history = 17;
+}
